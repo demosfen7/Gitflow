@@ -12,3 +12,4 @@ def get_time():
         "utc_time": now.isoformat(),
         "timestamp": now.timestamp(),
     }
+
