@@ -14,6 +14,7 @@
 | `GET` | `/time` | `{"utc_time": "...", "timestamp": ...}` |
 | `GET` | `/date` | `{"date": "...", "year": ..., "month": ..., "day": ...}` |
 | `GET` | `/datetime` | `{"datetime": "...", "date": "...", "time": "...", "timestamp": ...}` |
+| `GET` | `/timezone/{tz}` | `{"timezone": "...", "datetime": "...", "utc_offset": "..."}` — `tz` в формате IANA, например `/timezone/Europe/Berlin` |
 | `GET` | `/health` | `{"status": "ok"}` — используется в healthcheck контейнера |
 
 Локально:

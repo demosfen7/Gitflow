@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -38,6 +39,21 @@ def get_datetime():
         "date": now.date().isoformat(),
         "time": now.time().isoformat(),
         "timestamp": now.timestamp(),
+    }
+
+
+@app.get("/timezone/{tz:path}", summary="Convert Time To Timezone")
+def convert_timezone(tz: str):
+    try:
+        zone = ZoneInfo(tz)
+    except ZoneInfoNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Unknown timezone: {tz}")
+
+    now = datetime.now(zone)
+    return {
+        "timezone": tz,
+        "datetime": now.isoformat(),
+        "utc_offset": now.strftime("%z"),
     }
 
 
