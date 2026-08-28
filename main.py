@@ -5,7 +5,12 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-@app.get("/time")
+@app.get("/", summary="Root")
+def root():
+    return {"service": "gitflow", "status": "ok"}
+
+
+@app.get("/time", summary="Get Current Time")
 def get_time():
     now = datetime.now(timezone.utc)
     return {
@@ -14,7 +19,7 @@ def get_time():
     }
 
 
-@app.get("/date")
+@app.get("/date", summary="Get Current Date")
 def get_date():
     today = datetime.now(timezone.utc).date()
     return {
@@ -24,3 +29,18 @@ def get_date():
         "day": today.day,
     }
 
+
+@app.get("/datetime", summary="Get Current Datetime")
+def get_datetime():
+    now = datetime.now(timezone.utc)
+    return {
+        "datetime": now.isoformat(),
+        "date": now.date().isoformat(),
+        "time": now.time().isoformat(),
+        "timestamp": now.timestamp(),
+    }
+
+
+@app.get("/health", summary="Health Check")
+def health():
+    return {"status": "ok"}

@@ -4,12 +4,17 @@
 
 ## Что делает приложение
 
-Два эндпоинта, отдают текущее время в UTC:
+Отдаёт текущее время в UTC в нескольких видах.
+
+**[Открыть интерактивную документацию (Swagger UI)](https://vibecoding.aithinglab.com/gitflow/docs)** — там же можно вызвать любой эндпоинт прямо из браузера.
 
 | Метод | Путь | Ответ |
 |---|---|---|
+| `GET` | `/` | `{"service": "gitflow", "status": "ok"}` |
 | `GET` | `/time` | `{"utc_time": "...", "timestamp": ...}` |
 | `GET` | `/date` | `{"date": "...", "year": ..., "month": ..., "day": ...}` |
+| `GET` | `/datetime` | `{"datetime": "...", "date": "...", "time": "...", "timestamp": ...}` |
+| `GET` | `/health` | `{"status": "ok"}` — используется в healthcheck контейнера |
 
 Локально:
 
