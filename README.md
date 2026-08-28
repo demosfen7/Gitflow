@@ -14,7 +14,8 @@
 | `GET` | `/time` | `{"utc_time": "...", "timestamp": ...}` |
 | `GET` | `/date` | `{"date": "...", "year": ..., "month": ..., "day": ...}` |
 | `GET` | `/datetime` | `{"datetime": "...", "date": "...", "time": "...", "timestamp": ...}` |
-| `GET` | `/timezone/{tz}` | `{"timezone": "...", "datetime": "...", "utc_offset": "..."}` — `tz` в формате IANA, например `/timezone/Europe/Berlin` |
+| `GET` | `/timezone/{tz}` | `{"timezone": "...", "datetime": "...", "utc_offset": "..."}` — текущее время в зоне `tz` (IANA-имя), например `/timezone/Europe/Berlin` |
+| `GET` | `/convert?time=15:00&tz=Asia/Yekaterinburg` | `{"input_utc_time": "15:00", "timezone": "Asia/Yekaterinburg", "converted_time": "20:00", ...}` — переводит заданное время из UTC в указанный часовой пояс |
 | `GET` | `/health` | `{"status": "ok"}` — используется в healthcheck контейнера |
 
 Локально:
