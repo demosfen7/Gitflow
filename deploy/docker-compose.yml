@@ -1,0 +1,42 @@
+# Прод-стек gitflow — один контейнер приложения под пользователем vibecoding
+# (без sudo, свой rootless-Docker, изолированный от боевых проектов).
+#
+# ⚠️ Rootless-демон vibecoding — ОТДЕЛЬНЫЙ от обычного (rootful) демона, в
+# котором крутится Caddy. Это два разных Docker'а на одной машине: общих
+# docker-сетей между ними нет, контейнер нельзя подключить к сети Caddy
+# и достучаться до него по имени контейнера, как это работает для боевых
+# проектов. Единственный мост между ними — порт, опубликованный на IP моста
+# сети Caddy (172.28.0.1, шлюз briefgenerator_internal) и разрешённый
+# точечным правилом ufw:
+#   sudo ufw allow from 172.28.0.0/24 to any port 8091 proto tcp
+# Снаружи сервера порт недоступен (не 0.0.0.0, а конкретный внутренний IP),
+# наружу отдаёт только Caddy — см. deploy/vibecoding.aithinglab.com.caddy,
+# где reverse_proxy указывает на 172.28.0.1:8091.
+#
+# Живёт под путём /gitflow/ на общем поддомене учебных проектов
+# vibecoding.aithinglab.com. --root-path нужен, чтобы FastAPI генерировал
+# ссылки (/docs, /openapi.json) с учётом этого префикса; сама маршрутизация
+# запросов на префикс не завязана — Caddy срезает /gitflow ещё до того, как
+# запрос попадёт сюда.
+#
+# Файл кладётся на сервер в /opt/vibecoding.aithinglab.com/gitflow/ шагом
+# "Copy compose file" из .github/workflows/deploy.yml. Тег образа приходит
+# в соседнем .env (IMAGE=ghcr.io/demosfen7/gitflow:<sha>), который пишет
+# тот же workflow.
+services:
+  vibecoding-gitflow:
+    image: ${IMAGE}
+    container_name: vibecoding-gitflow
+    restart: unless-stopped
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/gitflow"]
+    # Публикуем строго на IP моста сети Caddy — ни на 0.0.0.0 (утекло бы
+    # наружу), ни на 127.0.0.1 (не дошло бы до контейнеров другого демона:
+    # петлевой интерфейс не пересекает границу network namespace).
+    ports:
+      - "172.28.0.1:8091:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/time', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

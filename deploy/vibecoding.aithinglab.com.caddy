@@ -1,0 +1,41 @@
+# Общий сайт-"конверт" для всех учебных проектов на vibecoding.aithinglab.com.
+# Один поддомен, один сертификат — у каждого проекта свой /<name>/-путь ниже.
+#
+# ⚠️ Этот файл ОБЩИЙ для нескольких репозиториев, поэтому CI ни одного из
+# проектов не копирует и не перезаписывает его автоматически (иначе деплой
+# gitflow стёр бы путь соседнего проекта, и наоборот). Правки вносятся
+# вручную прямо на сервере в /opt/briefgenerator/deploy/conf.d/, затем:
+#   ssh hetzner 'docker exec briefgenerator-caddy-1 caddy reload \
+#       --config /etc/caddy/Caddyfile --adapter caddyfile'
+#
+# Требуется A-запись vibecoding.aithinglab.com → 46.225.73.78 (уже есть).
+# AAAA-записи быть не должно, как и у соседних korzina, voiceapp и
+# briefgenerator: сервер отвечает по IPv6 не там, куда указывает хостинг
+# домена, и клиент с IPv6 ушёл бы мимо Caddy.
+vibecoding.aithinglab.com {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+	# Учебный поддомен — ему нечего делать в поисковой выдаче.
+	header X-Robots-Tag "noindex, nofollow"
+
+	# gitflow — demosfen7/Gitflow, FastAPI /time и /date.
+	# handle_path срезает префикс /gitflow до того, как отдать запрос
+	# контейнеру: тот ничего не знает про путь, на котором его открыли.
+	#
+	# Адрес — не имя контейнера: контейнер живёт в rootless-Docker
+	# пользователя vibecoding, это ОТДЕЛЬНЫЙ демон без общих сетей с этим
+	# Caddy. Мост — порт, опубликованный на IP шлюза этой самой сети
+	# (172.28.0.1) и разрешённый точечным правилом ufw (см. комментарий
+	# в deploy/docker-compose.yml проекта). Меняется порт в compose —
+	# меняй и здесь.
+	handle_path /gitflow/* {
+		reverse_proxy 172.28.0.1:8091
+	}
+
+	# Следующий учебный проект добавляется сюда же, ещё одним блоком —
+	# см. комментарий выше про адрес (тоже 172.28.0.1:<свой порт>, не имя
+	# контейнера, пока все учебные проекты сидят в rootless-Docker):
+	# handle_path /some-project/* {
+	#     reverse_proxy 172.28.0.1:8092
+	# }
+}
