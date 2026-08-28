@@ -7,8 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # Поддомен vibecoding.aithinglab.com общий для учебных проектов — у каждого
-  # своя папка и свой путь /<name>/ в Caddy (deploy/vibecoding.aithinglab.com.caddy).
   DEPLOY_DIR: /opt/vibecoding.aithinglab.com/gitflow
 
 jobs:
@@ -23,8 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # GHCR принимает только строчные буквы в имени образа, а репозиторий
-      # называется demosfen7/Gitflow — без приведения к lowercase push падает.
+      # lowercase: GHCR не принимает заглавные буквы в имени образа
       - name: Resolve image name
         id: meta
         run: |
@@ -97,9 +94,6 @@ jobs:
             set -e
             cd ${{ env.DEPLOY_DIR }}
 
-            # Тег пишем в .env: docker compose подставит его в ${IMAGE}.
-            # Деплоим по SHA, а не по latest — так видно, что именно крутится,
-            # и откат = поправить .env на прошлый SHA + docker compose up -d.
             echo "IMAGE=$IMAGE" > .env
 
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
