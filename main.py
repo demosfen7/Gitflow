@@ -13,3 +13,14 @@ def get_time():
         "timestamp": now.timestamp(),
     }
 
+
+@app.get("/date")
+def get_date():
+    today = datetime.now(timezone.utc).date()
+    return {
+        "date": today.isoformat(),
+        "year": today.year,
+        "month": today.month,
+        "day": today.day,
+    }
+
